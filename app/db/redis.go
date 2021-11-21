@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis"
-	_ "github.com/go-redis/redis"
 	"os"
 	"strconv"
 )
