@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+
+  go:
+    image: go
+    restart: always
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    links:
+      - pg
+      - redis
+
+  pg:
+    image: postgres
+    restart: always
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./data/pg:/var/lib/postgresql/data
+    depends_on:
+      - redis
+
+  redis:
+    image: redis
+    restart: always
+    volumes:
+      - ./data/redis:/data
