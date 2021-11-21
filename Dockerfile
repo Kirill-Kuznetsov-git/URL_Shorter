@@ -3,7 +3,7 @@ ADD app /app
 WORKDIR /app
 RUN apk add --no-cache ca-certificates git && \
 	go mod download && \
-	go run -o main .
+	go build -o main .
 
 FROM alpine:3.10 AS app
 WORKDIR /app
