@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"os"
 )
@@ -11,7 +12,10 @@ type PostgreSQL struct {
 }
 
 func InitPostgreSQL() (*PostgreSQL, error) {
-	pool, err := pgxpool.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	fmt.Println("fd")
+	fmt.Println(os.Getenv("DATABASE_URL"))
+	fmt.Println("q")
+	pool, err := pgxpool.Connect(context.Background(), "postgres://postgres:postgres@localhost:5432/app")
 	if err != nil {
 		return nil, err
 	}

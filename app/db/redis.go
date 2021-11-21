@@ -13,6 +13,7 @@ type Client struct {
 
 func InitRedis() (*Client, error) {
 	redisHost := os.Getenv("REDIS_HOST")
+	fmt.Println(os.Getenv("REDIS_HOST"))
 	redisPort, err := strconv.Atoi(os.Getenv("REDIS_PORT"))
 	if err != nil {
 		redisPort = 6379
