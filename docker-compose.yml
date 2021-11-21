@@ -20,6 +20,8 @@ services:
     container_name: pg
     image: postgres
     restart: always
+    ports:
+      - "5432:5432"
     env_file:
       - .env
     healthcheck:
@@ -36,6 +38,8 @@ services:
     container_name: redis
     image: redis
     restart: always
+    ports:
+      - "6379:6379"
     env_file:
       - .env
     volumes:
