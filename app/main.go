@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"URLShortener/app/db"
-	"fmt"
 	"log"
 	"net/http"
 )
