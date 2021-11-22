@@ -8,4 +8,5 @@ RUN	go build -o main .
 FROM alpine:3.10 AS app
 WORKDIR /app
 COPY --from=builder /app/main /app
+COPY --from=builder /app/configuration.json /app
 ENTRYPOINT ["./main"]

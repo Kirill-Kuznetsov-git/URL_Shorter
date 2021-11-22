@@ -3,7 +3,7 @@ version: "3.9"
 services:
 
   go:
-    container_name: go
+    container_name: urlshorter_go
     build: .
     restart: always
     ports:
@@ -17,7 +17,7 @@ services:
       - redis
 
   pg:
-    container_name: pg
+    container_name: urlshorter_pg
     image: postgres
     restart: always
     ports:
@@ -35,7 +35,7 @@ services:
       - redis
 
   redis:
-    container_name: redis
+    container_name: urlshorter_redis
     image: redis
     restart: always
     ports:
