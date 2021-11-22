@@ -33,3 +33,10 @@ func InitRedis() (*Redis, error) {
 	}, nil
 }
 
+func (redis *Redis) Close() error {
+	err := redis.client.Close()
+	if err != nil {
+		return err
+	}
+	return nil
+}

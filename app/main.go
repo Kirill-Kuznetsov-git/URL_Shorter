@@ -17,7 +17,8 @@ func main() {
 	}
 
 	db := DBpackage.InitDB(configuration.Db.DbName)
-	log.Println(db)
+
+	defer db.Close()
 
 	log.Fatal(http.ListenAndServe(":" + configuration.Server.Port, router))
 }

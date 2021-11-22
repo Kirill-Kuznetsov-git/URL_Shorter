@@ -16,3 +16,17 @@ func InitDB(nameDb string) *DB{
 	}
 	return &dbUniversal
 }
+
+func (db *DB) Close() error{
+	if db.postgre != nil{
+		db.postgre.Close()
+	}
+	if db.redis != nil{
+		err := db.redis.Close()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
