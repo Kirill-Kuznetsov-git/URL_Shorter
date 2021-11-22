@@ -1,7 +1,6 @@
 package db
 
 import (
-	"context"
 	"fmt"
 	"github.com/go-redis/redis"
 	"os"
@@ -23,7 +22,7 @@ func InitRedis() (*Redis, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr: redisUri,
 		Password: "",
-		DB: 0,  //use default DB
+		DB: 0,
 	})
 	if _, err := client.Ping().Result(); err != nil {
 		return nil, err
