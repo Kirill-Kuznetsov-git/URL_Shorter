@@ -1,17 +1,18 @@
 package db
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-redis/redis"
 	"os"
 	"strconv"
 )
 
-type Client struct {
+type Redis struct {
 	client *redis.Client
 }
 
-func InitRedis() (*Client, error) {
+func InitRedis() (*Redis, error) {
 	redisHost := os.Getenv("REDIS_HOST")
 	redisPort, err := strconv.Atoi(os.Getenv("REDIS_PORT"))
 	if err != nil {
@@ -28,7 +29,8 @@ func InitRedis() (*Client, error) {
 		return nil, err
 	}
 	fmt.Println("Redis init was completed")
-	return &Client{
+	return &Redis{
 		client: client,
 	}, nil
 }
+
