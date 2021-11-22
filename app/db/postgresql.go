@@ -35,3 +35,5 @@ func InitPostgreSQL() (*PostgreSQL, error) {
 func (p *PostgreSQL) Close() {
 	p.pool.Close()
 }
+
+

@@ -1,14 +1,19 @@
 package db
 
 import (
+	"URLShortener/app/config"
+	"context"
+	"errors"
 	"fmt"
-	"github.com/go-redis/redis"
+	RedisLibrary "github.com/go-redis/redis"
+	"URLShortener/app/hasher"
+	"log"
 	"os"
 	"strconv"
 )
 
 type Redis struct {
-	client *redis.Client
+	client *RedisLibrary.Client
 }
 
 func InitRedis() (*Redis, error) {
@@ -19,7 +24,7 @@ func InitRedis() (*Redis, error) {
 	}
 
 	redisUri := fmt.Sprintf("%s:%d", redisHost, redisPort)
-	client := redis.NewClient(&redis.Options{
+	client := RedisLibrary.NewClient(&RedisLibrary.Options{
 		Addr: redisUri,
 		Password: "",
 		DB: 0,
@@ -39,4 +44,32 @@ func (redis *Redis) Close() error {
 		return err
 	}
 	return nil
+}
+
+
+func (redis *Redis) Save(url ShortUrl) (string, error) {
+	url_string := config.StructToString(url)
+
+	res, err := redis.client.Get(url_string).Result()
+	if err == RedisLibrary.Nil {
+		log.Println("Redis: url will be created", url_string, res)
+
+		err = redis.client.Set(url_string, "0", 0).Err()
+		if err != nil {
+			return "Redis: set error. Please retry", err
+		}
+		return hasher.Encode(url.Id), nil
+	} else if err != nil {
+		return "Redis: get error. Please retry", err
+	}
+	return "Redis: url already exists", errors.New("already exists")
+}
+
+func (redis *Redis) Get(ctx context.Context, URLstring string) (string, error){
+	res, err := redis.client.Get(URLstring).Result()
+	if err == RedisLibrary.Nil{
+		return "Redis: Such url does not exists", errors.New("not exists")
+	}
+	return res, nil
+
 }

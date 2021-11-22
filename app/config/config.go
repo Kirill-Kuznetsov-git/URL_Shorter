@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 )
 
 type Config struct {
@@ -26,4 +27,15 @@ func FromFile(path string) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+
+func StructToString(SomeStruct interface{}) string {
+	res, err := json.Marshal(SomeStruct)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(string(res))
+
+	return string(res)
 }
