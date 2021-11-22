@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"log"
 	"os"
 	"strconv"
 )
@@ -37,3 +38,6 @@ func (p *PostgreSQL) Close() {
 }
 
 
+func (p *PostgreSQL) Save(){
+	log.Println("Hey")
+}

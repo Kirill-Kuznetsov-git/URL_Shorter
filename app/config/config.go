@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"net/http"
 )
 
 type Config struct {
@@ -38,4 +39,12 @@ func StructToString(SomeStruct interface{}) string {
 	log.Println(string(res))
 
 	return string(res)
+}
+
+func Respond(w http.ResponseWriter, data interface{})  {
+	w.Header().Add("Content-Type", "application/json")
+	err := json.NewEncoder(w).Encode(data)
+	if err != nil {
+		return 
+	}
 }
