@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-redis/redis"
 	"os"
@@ -13,7 +14,6 @@ type Client struct {
 
 func InitRedis() (*Client, error) {
 	redisHost := os.Getenv("REDIS_HOST")
-	fmt.Println(os.Getenv("REDIS_HOST"))
 	redisPort, err := strconv.Atoi(os.Getenv("REDIS_PORT"))
 	if err != nil {
 		redisPort = 6379
@@ -25,7 +25,7 @@ func InitRedis() (*Client, error) {
 		Password: "",
 		DB: 0,  //use default DB
 	})
-	if _, err := client.Ping().Result(); err != nil {
+	if _, err := client.Ping(context.Background()).Result(); err != nil {
 		return nil, err
 	}
 	fmt.Println("Redis init was completed")
