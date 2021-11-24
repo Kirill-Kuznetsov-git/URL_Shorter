@@ -41,3 +41,7 @@ func (p *PostgreSQL) Close() {
 func (p *PostgreSQL) Save(){
 	log.Println("Hey")
 }
+
+func (p *PostgreSQL) Get(){
+	log.Println("Hey")
+}

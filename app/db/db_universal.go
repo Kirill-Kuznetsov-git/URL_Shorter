@@ -16,7 +16,7 @@ func InitDB(nameDb string) *DB{
 	switch nameDb {
 	case "redis":
 		dbUniversal.redis, _ = InitRedis()
-	case "postgre":
+	case "postgreSQL":
 		dbUniversal.postgre, _ = InitPostgreSQL()
 	}
 	return &dbUniversal

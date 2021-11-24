@@ -78,14 +78,26 @@ func (redis *Redis) Save(ctx context.Context, url ShortUrl) (string, error) {
 		if err != nil {
 			return "Redis: set error. Please retry", err
 		}
-		return hasher.Encode(id), nil
+		ShortUrl, err := hasher.Encode(id)
+		if err != nil{
+			if err.Error() == "Too big number"{
+				return ShortUrl, err
+			}
+		}
+		return ShortUrl, nil
 	} else if err != nil {
 		return "Redis: get error. Please retry", err
 	}
 	TmpStruct := ShortUrl{}
 	_ = json.Unmarshal([]byte(res), &TmpStruct)
 	log.Println(hasher.Encode(TmpStruct.Id))
-	return hasher.Encode(TmpStruct.Id), errors.New("already exist")
+	ShortUrl, err := hasher.Encode(TmpStruct.Id)
+	if err != nil{
+		if err.Error() == "Too big number"{
+			return ShortUrl, err
+		}
+	}
+	return ShortUrl, errors.New("already exist")
 }
 
 
