@@ -90,9 +90,12 @@ func (redis *Redis) Save(ctx context.Context, url ShortUrl) (string, error) {
 
 
 func (redis *Redis) Get(ctx context.Context, UrlShort string) (string, error){
+	log.Println(UrlShort)
 	id, _ := hasher.Decode(UrlShort)
+	log.Println(id)
 	res, err := redis.client.Get(ctx, strconv.FormatUint(id, 10)).Result()
 	if err == RedisLibrary.Nil{
+		log.Println(res)
 		return "Redis: Such url does not exists", errors.New("not exists")
 	}
 	TmpStruct := ShortUrl{}

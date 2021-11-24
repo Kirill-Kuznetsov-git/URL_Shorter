@@ -15,14 +15,10 @@ const (
 // Encode number - id of the new URL
 func Encode(number uint64) string {
 	var encodedBuilder strings.Builder
-	encodedBuilder.Grow(lengthNewUrl)
-	LargerNumber := number * uint64(math.Pow(float64(length - 1), 10-(1/math.Log10(float64(number)))))
+	encodedBuilder.Grow(11)
 
-	for ; LargerNumber > 0; LargerNumber = LargerNumber / length {
-		encodedBuilder.WriteByte(alphabet[(LargerNumber % length)])
-		if encodedBuilder.Len() == lengthNewUrl{
-			break
-		}
+	for ; number > 0; number = number / length {
+		encodedBuilder.WriteByte(alphabet[(number % length)])
 	}
 
 	return encodedBuilder.String()
