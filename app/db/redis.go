@@ -48,8 +48,9 @@ func (redis *Redis) Close() error {
 }
 
 
-func (redis *Redis) Save(ctx context.Context, UrlKey string, url ShortUrl) (string, error) {
+func (redis *Redis) Save(ctx context.Context, url ShortUrl) (string, error) {
 	var id uint64
+
 	counter, err := redis.client.Get(ctx, "counter").Result()
 	if err == RedisLibrary.Nil{
 		err := redis.client.Set(ctx, "counter", 1, 0).Err()
@@ -63,13 +64,17 @@ func (redis *Redis) Save(ctx context.Context, UrlKey string, url ShortUrl) (stri
 		id += 1
 	}
 	url.Id = id
-	url_string := config.StructToString(url)
+	urlString := config.StructToString(url)
 
-	res, err := redis.client.Get(ctx, UrlKey).Result()
+	res, err := redis.client.Get(ctx, url.UrlOrigin).Result()
 	if err == RedisLibrary.Nil {
-		log.Println("Redis: url will be created", url_string, res)
+		log.Println("Redis: url will be created", urlString, res)
 
-		err = redis.client.Set(ctx, UrlKey, url_string, 0).Err()
+		err = redis.client.Set(ctx, url.UrlOrigin, urlString, 0).Err()
+		if err != nil {
+			return "Redis: set error. Please retry", err
+		}
+		err = redis.client.Set(ctx, strconv.FormatUint(id, 10), urlString, 0).Err()
 		if err != nil {
 			return "Redis: set error. Please retry", err
 		}
@@ -80,9 +85,9 @@ func (redis *Redis) Save(ctx context.Context, UrlKey string, url ShortUrl) (stri
 	return "Redis: url already exists", errors.New("already exists")
 }
 
-func (redis *Redis) Get(ctx context.Context, UrlEncode string) (string, error){
-	id, _ := hasher.Decode(UrlEncode)
-	res, err := redis.client.Get(ctx, UrlEncode).Result()
+func (redis *Redis) Get(ctx context.Context, UrlShort string) (string, error){
+	id, _ := hasher.Decode(UrlShort)
+	res, err := redis.client.Get(ctx, strconv.FormatUint(id, 10)).Result()
 	if err == RedisLibrary.Nil{
 		return "Redis: Such url does not exists", errors.New("not exists")
 	}
@@ -92,7 +97,8 @@ func (redis *Redis) Get(ctx context.Context, UrlEncode string) (string, error){
 		return "", err
 	}
 	TmpStruct.Visits += 1
-
-	redis.client.Set(ctx, UrlEncode, config.StructToString(TmpStruct), 0)
-	return hasher.Encode(), nil
+	TmpStructString := config.StructToString(TmpStruct)
+	redis.client.Set(ctx, strconv.FormatUint(id, 10), TmpStructString, 0)
+	redis.client.Set(ctx, TmpStruct.UrlOrigin, TmpStructString, 0)
+	return TmpStruct.UrlOrigin, nil
 }

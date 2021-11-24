@@ -36,7 +36,6 @@ func StructToString(SomeStruct interface{}) string {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(string(res))
 
 	return string(res)
 }

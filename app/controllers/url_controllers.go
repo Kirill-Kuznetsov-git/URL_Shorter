@@ -9,7 +9,6 @@ import (
 )
 
 var CreateURL = func(w http.ResponseWriter, r *http.Request){
-	fmt.Println("HELLOO")
 	URLstruct := &dbpackage.ShortUrl{}
 	err := json.NewDecoder(r.Body).Decode(URLstruct)
 	if err != nil {
@@ -24,6 +23,11 @@ var CreateURL = func(w http.ResponseWriter, r *http.Request){
 
 }
 
-var GetURL = func(w http.ResponseWriter, r *http.Request){
-	fmt.Println("Bue")
+var Redirect = func(w http.ResponseWriter, r *http.Request){
+	UrlShort := r.RequestURI[1:]
+	UrlOrigin, err := dbpackage.Get(r.Context(), UrlShort)
+	if err != nil {
+		return
+	}
+	http.Redirect(w, r, UrlOrigin, 301)
 }

@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 )
 
 type DB struct {
@@ -34,12 +35,13 @@ func (db *DB) Close() error{
 	return nil
 }
 
+
 func GetDB() *DB{
 	return &dbUniversal
 }
 
 func Save(ctx context.Context, url ShortUrl) (string, error){
-	if dbUniversal.postgre != nil{
+	if dbUniversal.postgre != nil {
 		dbUniversal.postgre.Save()
 	} else if dbUniversal.redis != nil{
 		url, err := dbUniversal.redis.Save(ctx, url)
@@ -48,5 +50,18 @@ func Save(ctx context.Context, url ShortUrl) (string, error){
 		}
 		return url, err
 	}
-	return "qwe", nil
+	return "Wrong DB", errors.New("wrong db")
+}
+
+func Get(ctx context.Context, UrlShort string) (string, error){
+	if dbUniversal.postgre != nil {
+		dbUniversal.postgre.Save()
+	} else if dbUniversal.redis != nil{
+		url, err := dbUniversal.redis.Get(ctx, UrlShort)
+		if err != nil {
+			return "error", err
+		}
+		return url, err
+	}
+	return "Wrong DB", errors.New("wrong db")
 }
