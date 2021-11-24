@@ -5,6 +5,7 @@ import (
 	dbpackage "URLShortener/app/db"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -17,6 +18,9 @@ var CreateURL = func(w http.ResponseWriter, r *http.Request){
 	}
 	save, err := dbpackage.Save(r.Context(), *URLstruct)
 	if err != nil {
+		if err.Error() == "already exist"{
+			config.Respond(w, save)
+		}
 		return
 	}
 	config.Respond(w, save)
@@ -27,6 +31,7 @@ var Redirect = func(w http.ResponseWriter, r *http.Request){
 	UrlShort := r.RequestURI[1:]
 	UrlOrigin, err := dbpackage.Get(r.Context(), UrlShort)
 	if err != nil {
+		log.Println("Error: ", err)
 		return
 	}
 	http.Redirect(w, r, UrlOrigin, 301)

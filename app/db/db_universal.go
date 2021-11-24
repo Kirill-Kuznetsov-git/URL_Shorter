@@ -35,19 +35,18 @@ func (db *DB) Close() error{
 	return nil
 }
 
-
-func GetDB() *DB{
-	return &dbUniversal
-}
-
 func Save(ctx context.Context, url ShortUrl) (string, error){
 	if dbUniversal.postgre != nil {
 		dbUniversal.postgre.Save()
 	} else if dbUniversal.redis != nil{
 		url, err := dbUniversal.redis.Save(ctx, url)
-		if err != nil {
+		if err != nil{
+			if err.Error() == "already exist"{
+				return url, err
+			}
 			return "error", err
 		}
+
 		return url, err
 	}
 	return "Wrong DB", errors.New("wrong db")

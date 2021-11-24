@@ -82,8 +82,12 @@ func (redis *Redis) Save(ctx context.Context, url ShortUrl) (string, error) {
 	} else if err != nil {
 		return "Redis: get error. Please retry", err
 	}
-	return "Redis: url already exists", errors.New("already exists")
+	TmpStruct := ShortUrl{}
+	_ = json.Unmarshal([]byte(res), &TmpStruct)
+	log.Println(hasher.Encode(TmpStruct.Id))
+	return hasher.Encode(TmpStruct.Id), errors.New("already exist")
 }
+
 
 func (redis *Redis) Get(ctx context.Context, UrlShort string) (string, error){
 	id, _ := hasher.Decode(UrlShort)
