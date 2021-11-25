@@ -35,7 +35,7 @@ func (db *DB) Close() error{
 	return nil
 }
 
-func Save(ctx context.Context, url ShortUrl) (string, error){
+func Save(ctx context.Context, url string) (string, error){
 	if dbUniversal.postgre != nil {
 		dbUniversal.postgre.Save()
 	} else if dbUniversal.redis != nil{

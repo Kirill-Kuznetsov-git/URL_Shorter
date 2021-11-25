@@ -10,13 +10,13 @@ import (
 )
 
 var CreateURL = func(w http.ResponseWriter, r *http.Request){
-	URLstruct := &dbpackage.ShortUrl{}
+	URLstruct := &dbpackage.UrlOrigin{}
 	err := json.NewDecoder(r.Body).Decode(URLstruct)
 	if err != nil {
 		fmt.Println("Error with json")
 		return
 	}
-	save, err := dbpackage.Save(r.Context(), *URLstruct)
+	save, err := dbpackage.Save(r.Context(), (*URLstruct).UrlOrigin)
 	if err != nil {
 		if err.Error() == "already exist"{
 			config.Respond(w, save)

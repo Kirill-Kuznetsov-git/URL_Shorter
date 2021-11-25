@@ -1,10 +1,8 @@
 package db
 
 import (
-	"URLShortener/app/config"
 	"URLShortener/app/hasher"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	RedisLibrary "github.com/go-redis/redis/v8"
@@ -48,76 +46,45 @@ func (redis *Redis) Close() error {
 }
 
 
-func (redis *Redis) Save(ctx context.Context, url ShortUrl) (string, error) {
-	var id uint64
-
-	counter, err := redis.client.Get(ctx, "counter").Result()
-	if err == RedisLibrary.Nil{
-		err := redis.client.Set(ctx, "counter", 1, 0).Err()
-		if err != nil {
-			return "", err
-		}
-		id = 1
-	} else{
-		redis.client.Incr(ctx, "counter")
-		id, _ = strconv.ParseUint(counter, 10,64)
-		id += 1
-	}
-	url.Id = id
-	urlString := config.StructToString(url)
-
-	res, err := redis.client.Get(ctx, url.UrlOrigin).Result()
+func (redis *Redis) Save(ctx context.Context, UrlOrigin string) (string, error) {
+	res, err := redis.client.Get(ctx, UrlOrigin).Result()
 	if err == RedisLibrary.Nil {
-		log.Println("Redis: url will be created", urlString, res)
-
-		err = redis.client.Set(ctx, url.UrlOrigin, urlString, 0).Err()
-		if err != nil {
-			return "Redis: set error. Please retry", err
-		}
-		err = redis.client.Set(ctx, strconv.FormatUint(id, 10), urlString, 0).Err()
-		if err != nil {
-			return "Redis: set error. Please retry", err
-		}
-		ShortUrl, err := hasher.Encode(id)
+		log.Println("Redis: url will be created", UrlOrigin, res)
+		UrlShort, err := hasher.Encode()
 		if err != nil{
-			if err.Error() == "Too big number"{
-				return ShortUrl, err
-			}
+			return "Error with hasher", err
 		}
-		return ShortUrl, nil
+		_, err = redis.client.Get(ctx, UrlShort).Result()
+
+		for err != RedisLibrary.Nil{
+			UrlShort, _ = hasher.Encode()
+			_, err = redis.client.Get(ctx, UrlShort).Result()
+		}
+
+		err = redis.client.Set(ctx, UrlShort, UrlOrigin, 0).Err()
+		if err != nil{
+			return "Redis error", err
+		}
+		err = redis.client.Set(ctx, UrlOrigin, UrlShort, 0).Err()
+		if err != nil{
+			return "Redis error", err
+		}
+
+		return UrlShort, nil
 	} else if err != nil {
 		return "Redis: get error. Please retry", err
 	}
-	TmpStruct := ShortUrl{}
-	_ = json.Unmarshal([]byte(res), &TmpStruct)
-	log.Println(hasher.Encode(TmpStruct.Id))
-	ShortUrl, err := hasher.Encode(TmpStruct.Id)
-	if err != nil{
-		if err.Error() == "Too big number"{
-			return ShortUrl, err
-		}
-	}
-	return ShortUrl, errors.New("already exist")
+	return res, nil
 }
 
 
 func (redis *Redis) Get(ctx context.Context, UrlShort string) (string, error){
-	log.Println(UrlShort)
-	id, _ := hasher.Decode(UrlShort)
-	log.Println(id)
-	res, err := redis.client.Get(ctx, strconv.FormatUint(id, 10)).Result()
+	UrlOrigin, err := redis.client.Get(ctx, UrlShort).Result()
 	if err == RedisLibrary.Nil{
-		log.Println(res)
 		return "Redis: Such url does not exists", errors.New("not exists")
 	}
-	TmpStruct := ShortUrl{}
-	err = json.Unmarshal([]byte(res), &TmpStruct)
 	if err != nil {
-		return "", err
+		return "redis error", err
 	}
-	TmpStruct.Visits += 1
-	TmpStructString := config.StructToString(TmpStruct)
-	redis.client.Set(ctx, strconv.FormatUint(id, 10), TmpStructString, 0)
-	redis.client.Set(ctx, TmpStruct.UrlOrigin, TmpStructString, 0)
-	return TmpStruct.UrlOrigin, nil
+	return UrlOrigin, nil
 }

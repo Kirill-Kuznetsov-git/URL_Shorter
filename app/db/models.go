@@ -1,7 +1,9 @@
 package db
 
-type ShortUrl struct {
-	Id uint64 `json:"id" redis:"id" pgxpool:"id"`
-	UrlOrigin string `json:"url_origin" redis:"url_origin" pgxpool:"id_origin"`
-	Visits     int    `json:"visits" redis:"visits" pgxpool:"visits"`
+type UrlShort struct{
+	UrlShort string `json:"url_short" redis:"url_short" pgxpool:"url_short"`
+}
+
+type UrlOrigin struct{
+	UrlOrigin string `json:"url_origin" redis:"url_origin" pgxpool:"url_origin"`
 }
