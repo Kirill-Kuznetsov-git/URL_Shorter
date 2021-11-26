@@ -24,12 +24,8 @@ services:
       - "5432:5432"
     env_file:
       - .env
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     volumes:
+      - ./app/migrations/20211126001_create_url_table.sql:/docker-entrypoint-initdb.d/20211126001_create_url_table.sql
       - ./data/pg:/var/lib/postgresql/data
     depends_on:
       - redis

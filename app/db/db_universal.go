@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"errors"
+	"log"
 )
 
 type DB struct {
@@ -13,10 +14,12 @@ type DB struct {
 var dbUniversal DB
 
 func InitDB(nameDb string) *DB{
+	log.Println("Database name from .env: " + nameDb)
 	switch nameDb {
 	case "redis":
 		dbUniversal.redis, _ = InitRedis()
 	case "postgreSQL":
+		log.Println("POSTGRE IS NOT EMPTY")
 		dbUniversal.postgre, _ = InitPostgreSQL()
 	}
 	return &dbUniversal
@@ -36,8 +39,14 @@ func (db *DB) Close() error{
 }
 
 func Save(ctx context.Context, url string) (string, error){
+	log.Println("Come to Save function in db_universal")
 	if dbUniversal.postgre != nil {
-		dbUniversal.postgre.Save()
+		log.Println("Come to postgreSQL")
+		url, err := dbUniversal.postgre.Save(ctx, url)
+		if err != nil {
+			return "postgre error", err
+		}
+		return url, nil
 	} else if dbUniversal.redis != nil{
 		url, err := dbUniversal.redis.Save(ctx, url)
 		if err != nil{
@@ -54,7 +63,11 @@ func Save(ctx context.Context, url string) (string, error){
 
 func Get(ctx context.Context, UrlShort string) (string, error){
 	if dbUniversal.postgre != nil {
-		dbUniversal.postgre.Save()
+		url, err := dbUniversal.postgre.Save(ctx, UrlShort)
+		if err != nil {
+			return "postgre error", err
+		}
+		return url, nil
 	} else if dbUniversal.redis != nil{
 		url, err := dbUniversal.redis.Get(ctx, UrlShort)
 		if err != nil {

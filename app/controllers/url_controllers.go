@@ -10,7 +10,7 @@ import (
 )
 
 var CreateURL = func(w http.ResponseWriter, r *http.Request){
-	URLstruct := &dbpackage.UrlOrigin{}
+	URLstruct := &dbpackage.Url{}
 	err := json.NewDecoder(r.Body).Decode(URLstruct)
 	if err != nil {
 		fmt.Println("Error with json")
