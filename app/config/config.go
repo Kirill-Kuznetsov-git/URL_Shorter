@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -31,4 +32,18 @@ func Respond(w http.ResponseWriter, data interface{})  {
 	if err != nil {
 		return 
 	}
+}
+
+func FromFile(path string) (*Config, error) {
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var cfg Config
+	if err := json.Unmarshal(b, &cfg); err != nil {
+		return nil, err
+	}
+
+	return &cfg, nil
 }

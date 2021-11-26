@@ -23,7 +23,7 @@ func InitPostgreSQL() (*PostgreSQL, error) {
 	if err != nil {
 		dbPort = 5432
 	}
-	dbUri := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=verify-ca&pool_max_conns=10", dbUsername, dbPassword, dbHost, dbPort, dbName)
+	dbUri := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=verify-ca&pool_max_conns=10", dbUsername, dbPassword, dbHost, dbPort, dbName)
 	pool, err := pgxpool.Connect(context.Background(), dbUri)
 	log.Println("POSTGREURL: " + dbUri)
 	if err != nil {
