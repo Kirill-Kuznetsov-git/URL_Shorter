@@ -79,6 +79,7 @@ func (redis *Redis) Save(ctx context.Context, UrlOrigin string) (string, error) 
 
 
 func (redis *Redis) Get(ctx context.Context, UrlShort string) (string, error){
+	log.Println("UrlShort: " + UrlShort)
 	UrlOrigin, err := redis.client.Get(ctx, UrlShort).Result()
 	if err == RedisLibrary.Nil{
 		return "Redis: Such url does not exists", errors.New("not exists")

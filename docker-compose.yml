@@ -12,6 +12,7 @@ services:
       - .env
     depends_on:
       - pg
+      - redis
     links:
       - pg
       - redis
@@ -25,7 +26,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./app/migrations/20211126001_create_url_table.sql:/docker-entrypoint-initdb.d/20211126001_create_url_table.sql
+      - ./app/migrations/0001_create_url_table.sql:/docker-entrypoint-initdb.d/0001_create_url_table.sql
       - ./data/pg:/var/lib/postgresql/data
     depends_on:
       - redis

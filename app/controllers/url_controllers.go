@@ -21,6 +21,7 @@ var CreateURL = func(w http.ResponseWriter, r *http.Request){
 		if err.Error() == "already exist"{
 			config.Respond(w, save)
 		}
+		log.Println(err)
 		return
 	}
 	config.Respond(w, save)
@@ -30,9 +31,12 @@ var CreateURL = func(w http.ResponseWriter, r *http.Request){
 var Redirect = func(w http.ResponseWriter, r *http.Request){
 	UrlShort := r.RequestURI[1:]
 	UrlOrigin, err := dbpackage.Get(r.Context(), UrlShort)
+	log.Println("HIHIHI")
+	log.Println("UrlOrigin1: " + UrlOrigin)
 	if err != nil {
 		log.Println("Error: ", err)
 		return
 	}
+	log.Println("UrlOrigin2: " + UrlOrigin)
 	http.Redirect(w, r, UrlOrigin, 301)
 }

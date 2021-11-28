@@ -13,16 +13,25 @@ type DB struct {
 
 var dbUniversal DB
 
-func InitDB(nameDb string) *DB{
+func InitDB(nameDb string) (*DB, error){
 	log.Println("Database name from .env: " + nameDb)
 	switch nameDb {
 	case "redis":
-		dbUniversal.redis, _ = InitRedis()
+		redis, err := InitRedis()
+		if err != nil {
+			log.Println("DB ERROR")
+			return nil, err
+		}
+		dbUniversal.redis = redis
 	case "postgreSQL":
-		log.Println("POSTGRE IS NOT EMPTY")
-		dbUniversal.postgre, _ = InitPostgreSQL()
+		sql, err := InitPostgreSQL()
+		if err != nil {
+			log.Println("DB ERROR")
+			return nil, err
+		}
+		dbUniversal.postgre = sql
 	}
-	return &dbUniversal
+	return &dbUniversal, nil
 }
 
 func (db *DB) Close() error{
@@ -63,7 +72,7 @@ func Save(ctx context.Context, url string) (string, error){
 
 func Get(ctx context.Context, UrlShort string) (string, error){
 	if dbUniversal.postgre != nil {
-		url, err := dbUniversal.postgre.Save(ctx, UrlShort)
+		url, err := dbUniversal.postgre.Get(ctx, UrlShort)
 		if err != nil {
 			return "postgre error", err
 		}

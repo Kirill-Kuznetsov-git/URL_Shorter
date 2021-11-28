@@ -16,7 +16,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	db := DBpackage.InitDB(configuration.Db.DbName)
+	db, err := DBpackage.InitDB(configuration.Db.DbName)
+	if err != nil{
+		log.Fatal(err)
+	}
 	defer db.Close()
 
 	router.HandleFunc("/create_url", controllers.CreateURL).Methods("POST")
