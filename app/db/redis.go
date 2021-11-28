@@ -1,7 +1,6 @@
 package db
 
 import (
-	"URLShortener/app/hasher"
 	"context"
 	"errors"
 	"fmt"
@@ -46,20 +45,10 @@ func (redis *Redis) Close() error {
 }
 
 
-func (redis *Redis) Save(ctx context.Context, UrlOrigin string) (string, error) {
+func (redis *Redis) Save(ctx context.Context, UrlOrigin string, UrlShort string) (string, error) {
 	res, err := redis.client.Get(ctx, UrlOrigin).Result()
 	if err == RedisLibrary.Nil {
 		log.Println("Redis: url will be created", UrlOrigin, res)
-		UrlShort, err := hasher.Encode()
-		if err != nil{
-			return "Error with hasher", err
-		}
-		_, err = redis.client.Get(ctx, UrlShort).Result()
-
-		for err != RedisLibrary.Nil{
-			UrlShort, _ = hasher.Encode()
-			_, err = redis.client.Get(ctx, UrlShort).Result()
-		}
 
 		err = redis.client.Set(ctx, UrlShort, UrlOrigin, 0).Err()
 		if err != nil{
@@ -79,13 +68,24 @@ func (redis *Redis) Save(ctx context.Context, UrlOrigin string) (string, error) 
 
 
 func (redis *Redis) Get(ctx context.Context, UrlShort string) (string, error){
-	log.Println("UrlShort: " + UrlShort)
 	UrlOrigin, err := redis.client.Get(ctx, UrlShort).Result()
 	if err == RedisLibrary.Nil{
-		return "Redis: Such url does not exists", errors.New("not exists")
+		return "Redis: Such url does not exists", errors.New("not exist")
 	}
 	if err != nil {
 		return "redis error", err
 	}
 	return UrlOrigin, nil
+}
+
+
+func (redis *Redis) Check(ctx context.Context, UrlOrigin string) (string, error){
+	UrlShort, err := redis.client.Get(ctx, UrlOrigin).Result()
+	if err == RedisLibrary.Nil{
+		return "", errors.New("not exist")
+	}
+	if err != nil {
+		return "error", err
+	}
+	return UrlShort, nil
 }

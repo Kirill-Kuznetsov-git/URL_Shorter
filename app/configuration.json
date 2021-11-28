@@ -3,6 +3,6 @@
     "port": "8080"
   },
   "db": {
-    "db_name": "postgreSQL"
+    "db_name": "redis"
   }
 }

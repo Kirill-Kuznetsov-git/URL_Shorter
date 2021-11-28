@@ -1,9 +1,9 @@
 package db
 
 import (
-	"URLShortener/app/hasher"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	_ "github.com/lib/pq"
 	"log"
@@ -51,30 +51,42 @@ func (p *PostgreSQL) Close() {
 }
 
 
-func (p *PostgreSQL) Save(ctx context.Context, UrlOrigin string) (string, error){
+func (p *PostgreSQL) Save(ctx context.Context, UrlOrigin string, UrlShort string) (string, error){
 	query := `INSERT INTO url (url_short, url_origin) VALUES($1, $2)`
-	log.Println("I AM HERE")
-	UrlShort, err := hasher.Encode()
-	if err != nil{
-		return "hasher error", err
-	}
 
-	log.Println("I AM HERE 1")
 	_ = p.pool.QueryRowContext(ctx, query, UrlShort, UrlOrigin)
-	log.Println("I AM HERE 2")
 	log.Println("Result UrlShort from postgreSQL: " + UrlShort)
 	return UrlShort, nil
 }
 
 func (p *PostgreSQL) Get(ctx context.Context, UrlShort string) (string, error){
-	query := "SELECT url_origin FROM url WHERE url_short=?"
+	query := "SELECT url_origin FROM url WHERE url_short=$1"
 
 	var res Url
 	row := p.pool.QueryRowContext(ctx, query, UrlShort)
 	err := row.Scan(&res.UrlOrigin)
 	if err != nil{
-		return "postgre error", err
+		if err.Error() == "sql: no rows in result set"{
+			return "PostgreSQL: Such url does not exists", errors.New("not exist")
+		}
+		return "postgre error in Get", err
 	}
 
 	return res.UrlOrigin, nil
+}
+
+func (p *PostgreSQL) Check(ctx context.Context, UrlOrigin string) (string, error){
+	query := "SELECT url_short FROM url WHERE url_origin=$1"
+
+	var res Url
+	row := p.pool.QueryRowContext(ctx, query, UrlOrigin)
+	err := row.Scan(&res.UrlShort)
+	if err != nil{
+		if err.Error() == "sql: no rows in result set"{
+			return "", errors.New("not exist")
+		}
+		return "error", err
+	}
+
+	return res.UrlShort, nil
 }
