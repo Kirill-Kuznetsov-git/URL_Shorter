@@ -3,7 +3,6 @@ package config
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -14,16 +13,6 @@ type Config struct {
 	Db struct {
 		DbName string `json:"db_name"`
 	} `json:"db"`
-}
-
-
-func StructToString(SomeStruct interface{}) string {
-	res, err := json.Marshal(SomeStruct)
-	if err != nil {
-		log.Println(err)
-	}
-
-	return string(res)
 }
 
 func Respond(w http.ResponseWriter, data interface{})  {
