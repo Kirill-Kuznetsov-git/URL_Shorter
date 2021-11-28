@@ -30,7 +30,7 @@ func InitRedis() (*Redis, error) {
 	if _, err := client.Ping(context.Background()).Result(); err != nil {
 		return nil, err
 	}
-	fmt.Println("Redis init was completed")
+	log.Println("Redis init was completed")
 	return &Redis{
 		client: client,
 	}, nil

@@ -4,7 +4,6 @@ import (
 	"URLShortener/app/config"
 	dbpackage "URLShortener/app/db"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -13,7 +12,7 @@ var CreateURL = func(w http.ResponseWriter, r *http.Request){
 	URLstruct := &dbpackage.Url{}
 	err := json.NewDecoder(r.Body).Decode(URLstruct)
 	if err != nil {
-		fmt.Println("Error with json")
+		log.Println("Error with json")
 		return
 	}
 	save, err := dbpackage.Save(r.Context(), (*URLstruct).UrlOrigin)

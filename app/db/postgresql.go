@@ -32,7 +32,7 @@ func InitPostgreSQL() (*PostgreSQL, error) {
 	}
 	pool, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		panic(err)
 	}
 
@@ -40,7 +40,7 @@ func InitPostgreSQL() (*PostgreSQL, error) {
 	for err != nil{
 		err = pool.Ping()
 	}
-	fmt.Println("Successfully connected to postgreSQL")
+	log.Println("Successfully connected to postgreSQL")
 	return &PostgreSQL{
 		pool: pool,
 	}, nil
