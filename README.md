@@ -21,7 +21,7 @@ following environment variables:
 5. `docker-compose up --build` to build and start project
 
 ## Configurations
-In file `configurations.json` you can change DB which use and server port.
+In file `configurations.json` you can change DB which use and server port. Possible valies for db_name: `redis` or `postgreSQL`.
 
 ## Urls
 1. To  create Short Url you have to call `/create_url` with body `{"url_origin": <string: url>}`. And you will get `shortLink`.
