@@ -1,8 +1,7 @@
 package hasher
 
 import (
-	"errors"
-	"math"
+	"math/rand"
 	"strings"
 )
 
@@ -12,32 +11,13 @@ const (
 	lengthNewUrl = 10
 )
 
-// Encode number - id of the new URL
-func Encode(number uint64) (string, error) {
+func Encode() (string, error) {
 	var encodedBuilder strings.Builder
 	encodedBuilder.Grow(lengthNewUrl)
 
-	for ; number > 0; number = number / length {
-		encodedBuilder.WriteByte(alphabet[(number % length)])
-		if encodedBuilder.Len() > 10{
-			return "Too big number", errors.New("too big number")
-		}
+	for i := 0; i < 10; i++ {
+		encodedBuilder.WriteByte(alphabet[rand.Intn(int(length) - 1)])
 	}
 
 	return encodedBuilder.String(), nil
-}
-
-func Decode(encoded string) (uint64, error) {
-	var number uint64
-
-	for i, symbol := range encoded {
-		alphabeticPosition := strings.IndexRune(alphabet, symbol)
-
-		if alphabeticPosition == -1 {
-			return uint64(alphabeticPosition), errors.New("invalid character: " + string(symbol))
-		}
-		number += uint64(alphabeticPosition) * uint64(math.Pow(float64(length), float64(i)))
-	}
-
-	return number, nil
 }
