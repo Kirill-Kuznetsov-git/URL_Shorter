@@ -12,7 +12,7 @@ import (
 func main() {
 	router := mux.NewRouter()
 
-	configuration, err := config.FromFile("./configuration.json")
+	configuration, err := config.FromFile("./configurations.json")
 	if err != nil {
 		log.Fatal(err)
 	}
