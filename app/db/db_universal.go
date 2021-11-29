@@ -15,7 +15,7 @@ type DB struct {
 var dbUniversal DB
 
 func InitDB(nameDb string) (*DB, error){
-	log.Println("Database name from .env: " + nameDb)
+	log.Println("Database name from configurations: " + nameDb)
 	switch nameDb {
 	case "redis":
 		redis, err := InitRedis()
