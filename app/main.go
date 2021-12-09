@@ -16,11 +16,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	db, err := DBpackage.InitDB(configuration.Db.DbName)
+	if configuration.Db.DbName == "redis"{
+		DBpackage.Db = &DBpackage.Redis{}
+	} else if configuration.Db.DbName == "postgreSQL"{
+		DBpackage.Db = &DBpackage.PostgreSQL{}
+	}
+	err = DBpackage.Db.Init()
 	if err != nil{
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer DBpackage.Db.Close()
 
 	router.HandleFunc("/create_url", controllers.CreateURL).Methods("POST")
 	router.HandleFunc("/{shortLink}", controllers.Redirect).Methods("GET")

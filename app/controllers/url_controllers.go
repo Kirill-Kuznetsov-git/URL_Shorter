@@ -15,7 +15,7 @@ var CreateURL = func(w http.ResponseWriter, r *http.Request){
 		log.Println("Error with json")
 		return
 	}
-	save, err := dbpackage.Save(r.Context(), (*URLstruct).UrlOrigin)
+	save, err := dbpackage.Db.Save(r.Context(), (*URLstruct).UrlOrigin)
 	if err != nil {
 		if err.Error() == "already exist"{
 			config.Respond(w, save)
@@ -29,10 +29,10 @@ var CreateURL = func(w http.ResponseWriter, r *http.Request){
 
 var Redirect = func(w http.ResponseWriter, r *http.Request){
 	UrlShort := r.RequestURI[1:]
-	UrlOrigin, err := dbpackage.Get(r.Context(), UrlShort)
+	res, err := dbpackage.Db.GetByUrlShort(r.Context(), UrlShort)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		return
 	}
-	http.Redirect(w, r, UrlOrigin, 301)
+	http.Redirect(w, r, res.UrlOrigin, 301)
 }

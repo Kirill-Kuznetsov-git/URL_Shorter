@@ -1,6 +1,7 @@
 package db
 
 import (
+	"URLShortener/app/hasher"
 	"context"
 	"database/sql"
 	"errors"
@@ -15,7 +16,7 @@ type PostgreSQL struct {
 	pool *sql.DB
 }
 
-func InitPostgreSQL() (*PostgreSQL, error) {
+func (postgre *PostgreSQL)Init() error {
 	dbUsername := os.Getenv("POSTGRES_USER")
 	dbPassword := os.Getenv("POSTGRES_PASSWORD")
 	dbHost := os.Getenv("POSTGRES_HOST")
@@ -36,52 +37,64 @@ func InitPostgreSQL() (*PostgreSQL, error) {
 		panic(err)
 	}
 	log.Println("Successfully connected to postgreSQL")
-	return &PostgreSQL{
-		pool: pool,
-	}, nil
+	postgre.pool = pool
+	return nil
 }
 
-func (p *PostgreSQL) Close() {
+func (p *PostgreSQL) Close() error {
 	p.pool.Close()
+	return nil
 }
 
 
-func (p *PostgreSQL) Save(ctx context.Context, UrlOrigin string, UrlShort string) (string, error){
+func (p *PostgreSQL) Save(ctx context.Context, UrlOrigin string) (*Url, error){
+	url, err := p.GetByUrlOrigin(ctx, UrlOrigin)
+	if err == nil{
+		return url, nil
+	} else if err.Error() != "not exist"{
+		return nil, err
+	}
+	UrlShort, _ := hasher.Encode()
+	_, err = p.GetByUrlShort(ctx, UrlShort)
+	for err.Error() != "not exist"{
+		UrlShort, _ = hasher.Encode()
+		_, err = p.GetByUrlShort(ctx, UrlShort)
+	}
+
 	query := `INSERT INTO url (url_short, url_origin) VALUES($1, $2)`
 
 	_ = p.pool.QueryRowContext(ctx, query, UrlShort, UrlOrigin)
 	log.Println("Result UrlShort from postgreSQL: " + UrlShort)
-	return UrlShort, nil
+	return &Url{UrlShort: UrlShort, UrlOrigin: UrlOrigin}, nil
 }
 
-func (p *PostgreSQL) Get(ctx context.Context, UrlShort string) (string, error){
+func (p *PostgreSQL) GetByUrlShort(ctx context.Context, UrlShort string) (*Url, error){
 	query := "SELECT url_origin FROM url WHERE url_short=$1"
 
-	var res Url
+	res := Url{UrlShort: UrlShort}
 	row := p.pool.QueryRowContext(ctx, query, UrlShort)
 	err := row.Scan(&res.UrlOrigin)
 	if err != nil{
 		if err.Error() == "sql: no rows in result set"{
-			return "PostgreSQL: Such url does not exists", errors.New("not exist")
+			return nil, errors.New("not exist")
 		}
-		return "postgre error in Get", err
+		return nil, err
 	}
-
-	return res.UrlOrigin, nil
+	return &res, nil
 }
 
-func (p *PostgreSQL) Check(ctx context.Context, UrlOrigin string) (string, error){
+func (p *PostgreSQL) GetByUrlOrigin(ctx context.Context, UrlOrigin string) (*Url, error){
 	query := "SELECT url_short FROM url WHERE url_origin=$1"
 
-	var res Url
+	res := Url{UrlOrigin: UrlOrigin}
 	row := p.pool.QueryRowContext(ctx, query, UrlOrigin)
 	err := row.Scan(&res.UrlShort)
 	if err != nil{
 		if err.Error() == "sql: no rows in result set"{
-			return "", errors.New("not exist")
+			return nil, errors.New("not exist")
 		}
-		return "error", err
+		return nil, err
 	}
 
-	return res.UrlShort, nil
+	return &res, nil
 }
