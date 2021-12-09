@@ -16,6 +16,7 @@ type Redis struct {
 }
 
 func (redis *Redis) Init() error {
+	// Try to get all requied information for connecting to Redis
 	redisHost := os.Getenv("REDIS_HOST")
 	redisPort, err := strconv.Atoi(os.Getenv("REDIS_PORT"))
 	if err != nil {
@@ -46,11 +47,13 @@ func (redis *Redis) Close() error {
 
 
 func (redis *Redis) Save(ctx context.Context, UrlOrigin string) (*Url, error) {
+	// Check: Maybe such UrlOrigin already exist in DB
 	UrlShort, err := redis.client.Get(ctx, UrlOrigin).Result()
-
+	// err == RedisLibrary.Nil means that such recording does noe exist in DB
 	if err == RedisLibrary.Nil {
 		log.Println("Redis: url will be created", UrlOrigin)
 
+		// Сreate a new hash string until it becomes unique
 		UrlShort, _ := hasher.Encode()
 		_, err = redis.client.Get(ctx, UrlShort).Result()
 		for err != RedisLibrary.Nil{
@@ -58,7 +61,7 @@ func (redis *Redis) Save(ctx context.Context, UrlOrigin string) (*Url, error) {
 			_, err = redis.client.Get(ctx, UrlShort).Result()
 		}
 
-
+		// Create two recording in DB UrlOrigin -> UrlShort and UrlShort -> UrlOrigin
 		err = redis.client.Set(ctx, UrlShort, UrlOrigin, 0).Err()
 		if err != nil{
 			return nil, err

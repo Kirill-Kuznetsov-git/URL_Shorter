@@ -8,6 +8,9 @@ import (
 	"net/http"
 )
 
+// CreateURL Handler for creating new URL
+// In the body must be {"url_origin": <string>}.
+// Will be created Short Url for this Url origin, using hasher
 var CreateURL = func(w http.ResponseWriter, r *http.Request){
 	URLstruct := &dbpackage.Url{}
 	err := json.NewDecoder(r.Body).Decode(URLstruct)
@@ -26,7 +29,8 @@ var CreateURL = func(w http.ResponseWriter, r *http.Request){
 	config.Respond(w, save)
 
 }
-
+// Redirect Handler which get Short Url from search bar,
+// Find in the DB Origin Url and redirect to this Origin Url
 var Redirect = func(w http.ResponseWriter, r *http.Request){
 	UrlShort := r.RequestURI[1:]
 	res, err := dbpackage.Db.GetByUrlShort(r.Context(), UrlShort)

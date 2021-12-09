@@ -17,6 +17,7 @@ type PostgreSQL struct {
 }
 
 func (postgre *PostgreSQL) Init() error {
+	// Try to get all requied information for connecting to postgreSQL
 	dbUsername := os.Getenv("POSTGRES_USER")
 	dbPassword := os.Getenv("POSTGRES_PASSWORD")
 	dbHost := os.Getenv("POSTGRES_HOST")
@@ -37,7 +38,6 @@ func (postgre *PostgreSQL) Init() error {
 		panic(err)
 	}
 	log.Println("Successfully connected to postgreSQL")
-	log.Println(pool)
 	postgre.pool = pool
 	return nil
 }
@@ -49,20 +49,24 @@ func (postgre *PostgreSQL) Close() error {
 
 
 func (postgre *PostgreSQL) Save(ctx context.Context, UrlOrigin string) (*Url, error){
+	// Check: Maybe such UrlOrigin already exist in DB
 	url, err := postgre.GetByUrlOrigin(ctx, UrlOrigin)
+	// err.Error() != "not exist" means that such UrlOrigin does not exist in DB
 	if err == nil{
+		// If exists, then return UrlShort and UrlOrigin
 		return url, nil
 	} else if err.Error() != "not exist"{
 		return nil, err
 	}
-
+	// Create hash string for UrlOrigin
 	UrlShort, _ := hasher.Encode()
 	_, err = postgre.GetByUrlShort(ctx, UrlShort)
-
+	// Сreate a new hash string until it becomes unique
 	for err == nil || err.Error() != "not exist"{
 		UrlShort, _ = hasher.Encode()
 		_, err = postgre.GetByUrlShort(ctx, UrlShort)
 	}
+	// Send query request to DB
 	query := `INSERT INTO url (url_short, url_origin) VALUES($1, $2)`
 	_ = postgre.pool.QueryRowContext(ctx, query, UrlShort, UrlOrigin)
 	log.Println("Result UrlShort from postgreSQL: " + UrlShort)

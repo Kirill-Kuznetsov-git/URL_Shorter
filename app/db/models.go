@@ -4,6 +4,7 @@ import "context"
 
 var Db dbInterface
 
+// Interface for any DB, which will be used in this application
 type dbInterface interface {
 	Init() error
 	Close() error
@@ -11,7 +12,6 @@ type dbInterface interface {
 	GetByUrlShort(ctx context.Context, UrlShort string) (*Url, error)
 	GetByUrlOrigin(ctx context.Context, UrlOrigin string) (*Url, error)
 }
-
 
 type Url struct{
 	UrlShort string `json:"url_short" redis:"url_short" pgxpool:"url_short"`

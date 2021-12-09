@@ -11,16 +11,19 @@ import (
 
 func main() {
 	router := mux.NewRouter()
-
+	// Get db name from configurations
 	configuration, err := config.FromFile("./configurations.json")
 	if err != nil {
 		log.Fatal(err)
 	}
+	// Create variable of DB depends on DB name. Each of two: "redis" and "postgreSQL" have the same interface,
+	// which is described in ./db/models.go
 	if configuration.Db.DbName == "redis"{
 		DBpackage.Db = &DBpackage.Redis{}
 	} else if configuration.Db.DbName == "postgreSQL"{
 		DBpackage.Db = &DBpackage.PostgreSQL{}
 	}
+	// Initialization of DB
 	err = DBpackage.Db.Init()
 	if err != nil{
 		log.Fatal(err)

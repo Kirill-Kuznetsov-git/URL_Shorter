@@ -14,7 +14,7 @@ type Config struct {
 		DbName string `json:"db_name"`
 	} `json:"db"`
 }
-
+// Respond Function, which will be return in any handler
 func Respond(w http.ResponseWriter, data interface{})  {
 	w.Header().Add("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(data)
@@ -23,6 +23,7 @@ func Respond(w http.ResponseWriter, data interface{})  {
 	}
 }
 
+// FromFile Function for read info from file
 func FromFile(path string) (*Config, error) {
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
